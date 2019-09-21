@@ -1,0 +1,6 @@
+define i64 @myfunc(i64 %x, i64 %y) {
+entry:
+  %ulttmp = icmp ult i64 %x, %y
+  ret i1 %ulttmp
+}
+Wrote output.o
