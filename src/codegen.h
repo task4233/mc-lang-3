@@ -87,7 +87,11 @@ Value *BinaryAST::codegen() {
       // CreateIntCast: https://llvm.org/doxygen/classllvm_1_1IRBuilder.html#a5bb25de40672dedc0d65e608e4b78e2f
       // CreateICmpの返り値がi1(1bit)なので、CreateIntCastはそれをint64にcastするのに用います。
     case '<':
-      return Builder.CreateICmpULT(L, R, "ulttmp");
+      return Builder.CreateIntCast(
+				 Builder.CreateICmpULT(L, R, "ulttmp"),
+				 Type::getInt64Ty(Context),
+				 true,
+				 "cast_i1_to_i64");
     default:
       return LogErrorV("invalid binary operator");
     }
