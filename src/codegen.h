@@ -165,8 +165,8 @@ Value *IfExprAST::codegen() {
         return nullptr;
 
     // CondVはint64なので、int64の0とequalかどうか判定することでCondVをbool型にする。
-    CondV = Builder.CreateICmpEQ(
-            CondV, ConstantInt::get(Context, APInt(64, -1)), "ifcond");
+    CondV = Builder.CreateICmpNE(
+            CondV, ConstantInt::get(Context, APInt(64, 0)), "ifcond");
     // if文を呼んでいる関数の名前
     Function *ParentFunc = Builder.GetInsertBlock()->getParent();
 
