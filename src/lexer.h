@@ -40,7 +40,6 @@ class Lexer {
                 while (isalnum((lastChar = getNextChar(iFile))))
                     identifierStr += lastChar;
 
-		std::cout<< identifierStr << std::endl;
                 if (identifierStr == "def")
                     return tok_def;
                 // TODO 3.2: "if", "then", "else"をトークナイズしてみよう
@@ -51,6 +50,8 @@ class Lexer {
 		  return tok_then;
 		else if (identifierStr == "else")
 		  return tok_else;
+
+		setIdentifier(identifierStr);
                 return tok_identifier;
             }
 

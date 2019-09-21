@@ -33,10 +33,6 @@ Value *LogErrorV(const char *str) {
 Value *VariableExprAST::codegen() {
     // NamedValuesの中にVariableExprAST::NameとマッチするValueがあるかチェックし、
     // あったらそのValueを返す。
-  /*for(auto&& name : NamedValues) {
-      std::cout << name.first << std::endl;
-    }
-  */
   Value *V = NamedValues[variableName];
     if (!V)
       return LogErrorV(("Unknown variable name: " + variableName).c_str());
@@ -158,7 +154,7 @@ Value *IfExprAST::codegen() {
     // if x < 5 then x + 3 else x - 5;
     // というコードが入力だと考える。
     // Cond->codegen()によって"x < 5"のcondition部分がcodegenされ、その返り値(int)が
-    // CondVに格納される。
+    // CondVに格納される
     Value *CondV = Cond->codegen();
     if (!CondV)
         return nullptr;
