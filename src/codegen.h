@@ -80,27 +80,41 @@ Value *BinaryAST::codegen() {
     case '-':
       return Builder.CreateSub(L, R, "subtmp");
     case '*':
-      return Builder.CreateMul(L, R, "multmp");  
+	return Builder.CreateMul(L, R, "multmp");
     case '/':
       // ref
       // https://llvm.org/doxygen/Value_8h_source.html#l00245
       return Builder.CreateUDiv(L, R, "divtmp");
+    case ge:
+      return Builder.CreateIntCast(
+				   Builder.CreateICmpUGE(L, R, "ugetmp"),
+				   Type::getInt64Ty(Context),
+				   true,
+				   "cast_i1_to_i64");
+    case le:
+      return Builder.CreateIntCast(
+				   Builder.CreateICmpULE(L, R, "uletmp"),
+				   Type::getInt64Ty(Context),
+				   true,
+				   "cast_i1_to_i64");
+      
+    case '>':
+      return Builder.CreateIntCast(
+				   Builder.CreateICmpUGT(L, R, "ugttmp"),
+				   Type::getInt64Ty(Context),
+				   true,
+				   "cast_i1_to_i64");
       // TODO 3.1: '<'を実装してみよう
       // '<'のcodegenを実装して下さい。その際、以下のIRBuilderのメソッドが使えます。
       // CreateICmp: https://llvm.org/doxygen/classllvm_1_1IRBuilder.html#a103d309fa238e186311cbeb961b5bcf4
       // CreateIntCast: https://llvm.org/doxygen/classllvm_1_1IRBuilder.html#a5bb25de40672dedc0d65e608e4b78e2f
       // CreateICmpの返り値がi1(1bit)なので、CreateIntCastはそれをint64にcastするのに用います。
     case '<':
-      std::cout << Builder.CreateIntCast(
-				 Builder.CreateICmpULT(L, R, "ulttmp"),
-				 Type::getInt64Ty(Context),
-				 true,
-				 "cast_i1_to_i64") << std::endl;
       return Builder.CreateIntCast(
-				 Builder.CreateICmpULT(L, R, "ulttmp"),
-				 Type::getInt64Ty(Context),
-				 true,
-				 "cast_i1_to_i64");
+				   Builder.CreateICmpULT(L, R, "ulttmp"),
+				   Type::getInt64Ty(Context),
+				   true,
+				   "cast_i1_to_i64");
     default:
       return LogErrorV("invalid binary operator");
     }
