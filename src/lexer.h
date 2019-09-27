@@ -15,7 +15,8 @@ enum Token {
     tok_number = -4,
     tok_if = -5,
     tok_then = -6,
-    tok_else = -7
+    tok_else = -7,
+    tok_third = -8
 };
 
 class Lexer {
@@ -76,7 +77,13 @@ class Lexer {
                 numStr += lastChar;
                 while (isdigit(lastChar = getNextChar(iFile)))
                     numStr += lastChar;
-                setnumVal(strtod(numStr.c_str(), nullptr));
+
+		if (lastChar == '?') {
+		  
+		  return tok_third;
+		}
+		
+                setnumVal(strtod(numStr.c_str(), nullptr));		
                 return tok_number;
             }
 
@@ -98,6 +105,7 @@ class Lexer {
                     return gettok();
             }
 
+
             // EOFならtok_eofを返す
             if (iFile.eof())
                 return tok_eof;
@@ -111,6 +119,7 @@ class Lexer {
         // 数字を格納するnumValのgetter, setter
         uint64_t getNumVal() { return numVal; }
         void setnumVal(uint64_t numval) { numVal = numval; }
+	void setThirdNum(uint64_t num1, uint64_t num2) { numVal1=num1; numVal2=num2;}
 
         // 識別子を格納するIdentifierStrのgetter, setter
         std::string getIdentifier() { return identifierStr; }
@@ -120,7 +129,7 @@ class Lexer {
 
             private:
         std::ifstream iFile;
-        uint64_t numVal;
+        uint64_t numVal, numVal1, numVal2;
         // tok_identifierなら文字を入れる
         std::string identifierStr;
         static char getNextChar(std::ifstream &is) {
