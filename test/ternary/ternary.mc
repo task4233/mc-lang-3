@@ -1,2 +1,5 @@
+def gcd(a, b)
+  b ? gcd(b, a%b):a;
+
 def test(x)
-    x>10 ? 1 : 0
+    gcd(x, 20)
