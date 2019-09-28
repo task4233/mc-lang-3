@@ -408,7 +408,6 @@ static std::unique_ptr<ExprAST> ParseExpression() {
 
   auto binOpExpr =  ParseBinOpRHS(0, std::move(LHS));
   if (CurTok == '?') {
-    std::cout<<"? is coming!"<<std::endl;
     return ParseTernaryOperatorExpr(std::move(binOpExpr));
   }
   return binOpExpr;
