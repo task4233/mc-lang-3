@@ -272,6 +272,25 @@ static std::unique_ptr<ExprAST> ParseIfExpr() {
   return llvm::make_unique< IfExprAST >(std::move(condition), std::move(thenExpression), std::move(elseExpression));
 }
 
+static std::unique_ptr<ExprAST> ParseThirdOperatorExpr() {
+  auto condition = ParseExpression();
+
+  if(CurTok != '?') {
+    return LogError("next token must be '?'");
+  }
+  getNextToken();
+
+  auto expr1 = ParseExpression();
+  if(CurTok != ':') {
+    return LogError("next token must be ':'");
+  }
+  getNextToken();
+
+  auto expr2 = ParseExpression();
+
+  return llvm::make_unique< ThirdOperatorAST >(std::move(condition), std::move(expr1), std::move(expr2);
+}
+
 // ParsePrimary - NumberASTか括弧をパースする関数
 static std::unique_ptr<ExprAST> ParsePrimary() {
   switch (CurTok) {
