@@ -15,8 +15,7 @@ enum Token {
     tok_number = -4,
     tok_if = -5,
     tok_then = -6,
-    tok_else = -7,
-    tok_third = -8
+    tok_else = -7
 };
 
 class Lexer {
@@ -26,7 +25,7 @@ class Lexer {
         // '+'や他のunknown tokenだった場合はそのascii codeを返す。
         int gettok() {
             static int lastChar = getNextChar(iFile);
-
+	    
             // スペースをスキップ
             while (isspace(lastChar))
                 lastChar = getNextChar(iFile);
@@ -40,7 +39,6 @@ class Lexer {
                 identifierStr = lastChar;
                 while (isalnum((lastChar = getNextChar(iFile))))
                     identifierStr += lastChar;
-
                 if (identifierStr == "def")
                     return tok_def;
                 // TODO 3.2: "if", "then", "else"をトークナイズしてみよう
@@ -77,11 +75,6 @@ class Lexer {
                 numStr += lastChar;
                 while (isdigit(lastChar = getNextChar(iFile)))
                     numStr += lastChar;
-
-		if (lastChar == '?') {
-		  
-		  return tok_third;
-		}
 		
                 setnumVal(strtod(numStr.c_str(), nullptr));		
                 return tok_number;

@@ -62,14 +62,14 @@ namespace {
     Value *codegen() override;
   };
 
-  // ThirdOperatorAST - class for third operator
-  class ThirdOperatorAST : public ExprAST {
+  // TernaryOperatorAST - class for third operator
+  class TernaryOperatorAST : public ExprAST {
     std::unique_ptr<ExprAST> cond, expr1, expr2;
     
   public:
-  ThirdOperatorAST(std::unique_ptr<ExprAST> cond, std::unique_ptr<ExprAST> expr1,
-		   std::unique_ptr<ExprAST> expr2)
-    : cond(std::move(cond)), expr1(std::move(expr1)), expr2(std::move(expr2))) {}
+  TernaryOperatorAST(std::unique_ptr<ExprAST> cond, std::unique_ptr<ExprAST> expr1,
+		     std::unique_ptr<ExprAST> expr2)
+    : cond(std::move(cond)), expr1(std::move(expr1)), expr2(std::move(expr2)) {}
   
   Value *codegen() override;
 };
@@ -272,12 +272,8 @@ static std::unique_ptr<ExprAST> ParseIfExpr() {
   return llvm::make_unique< IfExprAST >(std::move(condition), std::move(thenExpression), std::move(elseExpression));
 }
 
-static std::unique_ptr<ExprAST> ParseThirdOperatorExpr() {
-  auto condition = ParseExpression();
-
-  if(CurTok != '?') {
-    return LogError("next token must be '?'");
-  }
+static std::unique_ptr<ExprAST> ParseTernaryOperatorExpr(std::unique_ptr< ExprAST > condition) {
+  // already get condition
   getNextToken();
 
   auto expr1 = ParseExpression();
@@ -287,15 +283,15 @@ static std::unique_ptr<ExprAST> ParseThirdOperatorExpr() {
   getNextToken();
 
   auto expr2 = ParseExpression();
-
-  return llvm::make_unique< ThirdOperatorAST >(std::move(condition), std::move(expr1), std::move(expr2);
+  
+  return llvm::make_unique< TernaryOperatorAST >(std::move(condition), std::move(expr1), std::move(expr2));
 }
 
 // ParsePrimary - NumberASTか括弧をパースする関数
 static std::unique_ptr<ExprAST> ParsePrimary() {
   switch (CurTok) {
   default:
-    return LogError("unknown token when expecting an expression");
+    return LogError(("unknown token when expecting an expression: " + std::to_string(CurTok)).c_str());
   case tok_identifier:
     return ParseIdentifierExpr();
   case tok_number:
@@ -406,10 +402,16 @@ static std::unique_ptr<FunctionAST> ParseDefinition() {
 // 最初に1,2を判定して、そうでなければ二項演算子だと思う。
 static std::unique_ptr<ExprAST> ParseExpression() {
   auto LHS = ParsePrimary();
+  
   if (!LHS)
     return nullptr;
 
-  return ParseBinOpRHS(0, std::move(LHS));
+  auto binOpExpr =  ParseBinOpRHS(0, std::move(LHS));
+  if (CurTok == '?') {
+    std::cout<<"? is coming!"<<std::endl;
+    return ParseTernaryOperatorExpr(std::move(binOpExpr));
+  }
+  return binOpExpr;
 }
 
 // パーサーのトップレベル関数。まだ関数定義は実装しないので、今のmc言語では
