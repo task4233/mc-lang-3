@@ -85,6 +85,8 @@ Value *BinaryAST::codegen() {
       // ref
       // https://llvm.org/doxygen/Value_8h_source.html#l00245
       return Builder.CreateUDiv(L, R, "divtmp");
+    case '%':
+      return Builder.CreateURem(L, R, "modtmp");
     case ge:
       return Builder.CreateIntCast(
 				   Builder.CreateICmpUGE(L, R, "ugetmp"),
@@ -243,6 +245,47 @@ Value *IfExprAST::codegen() {
     // TODO 3.4を実装したらコメントアウトを外して下さい。
     PN->addIncoming(ElseV, ElseBB);
     return PN;
+}
+
+Value* TernaryOperatorAST::codegen() {
+  Value* condV = cond->codegen();
+  if(!condV) return nullptr;
+
+  // cast(i1->i64)
+  condV = Builder.CreateICmpNE(condV, ConstantInt::get(Context, APInt(64,0)), "ifcond");
+
+  Function *parentFunc = Builder.GetInsertBlock()->getParent();
+  BasicBlock* expr1BB = BasicBlock::Create(Context, "expr1", parentFunc);
+  BasicBlock* expr2BB = BasicBlock::Create(Context, "expr2");
+  BasicBlock* mergeBB = BasicBlock::Create(Context, "ifcont");
+  Builder.CreateCondBr(condV, expr1BB, expr2BB);
+
+  // Expr1
+  Builder.SetInsertPoint(expr1BB);
+  Value* expr1V = expr1->codegen();
+  if (!expr1V) return nullptr;
+  Builder.CreateBr(mergeBB);
+  expr1BB = Builder.GetInsertBlock();
+  // done Expr1 block
+
+  // Expr2
+  parentFunc->getBasicBlockList().push_back(expr2BB);
+  Builder.SetInsertPoint(expr2BB);
+  Value* expr2V = expr2->codegen();
+  if (!expr2V) return nullptr;
+  Builder.CreateBr(mergeBB);
+  expr2BB = Builder.GetInsertBlock();
+  // done Expr2 block
+
+  // ifcond
+  parentFunc->getBasicBlockList().push_back(mergeBB);
+  Builder.SetInsertPoint(mergeBB);
+
+   PHINode* pN =
+        Builder.CreatePHI(Type::getInt64Ty(Context), 2, "iftmp");
+   pN->addIncoming(expr1V, expr1BB);
+   pN->addIncoming(expr2V, expr2BB);
+  return pN;
 }
 
 //===----------------------------------------------------------------------===//
