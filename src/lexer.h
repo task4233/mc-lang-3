@@ -25,7 +25,7 @@ class Lexer {
         // '+'や他のunknown tokenだった場合はそのascii codeを返す。
         int gettok() {
             static int lastChar = getNextChar(iFile);
-
+	    
             // スペースをスキップ
             while (isspace(lastChar))
                 lastChar = getNextChar(iFile);
@@ -39,7 +39,6 @@ class Lexer {
                 identifierStr = lastChar;
                 while (isalnum((lastChar = getNextChar(iFile))))
                     identifierStr += lastChar;
-
                 if (identifierStr == "def")
                     return tok_def;
                 // TODO 3.2: "if", "then", "else"をトークナイズしてみよう
@@ -76,7 +75,8 @@ class Lexer {
                 numStr += lastChar;
                 while (isdigit(lastChar = getNextChar(iFile)))
                     numStr += lastChar;
-                setnumVal(strtod(numStr.c_str(), nullptr));
+		
+                setnumVal(strtod(numStr.c_str(), nullptr));		
                 return tok_number;
             }
 
@@ -98,6 +98,7 @@ class Lexer {
                     return gettok();
             }
 
+
             // EOFならtok_eofを返す
             if (iFile.eof())
                 return tok_eof;
@@ -111,6 +112,7 @@ class Lexer {
         // 数字を格納するnumValのgetter, setter
         uint64_t getNumVal() { return numVal; }
         void setnumVal(uint64_t numval) { numVal = numval; }
+	void setThirdNum(uint64_t num1, uint64_t num2) { numVal1=num1; numVal2=num2;}
 
         // 識別子を格納するIdentifierStrのgetter, setter
         std::string getIdentifier() { return identifierStr; }
@@ -120,7 +122,7 @@ class Lexer {
 
             private:
         std::ifstream iFile;
-        uint64_t numVal;
+        uint64_t numVal, numVal1, numVal2;
         // tok_identifierなら文字を入れる
         std::string identifierStr;
         static char getNextChar(std::ifstream &is) {
